@@ -1,4 +1,4 @@
-# BUSINESSFORUM202605
+# Businessforum202605
 
 好未来业务论坛前端页。项目是一个静态 HTML 页面，主入口为 `index.html`，可以直接本地预览，也可以构建后部署到 GitHub Pages。
 
