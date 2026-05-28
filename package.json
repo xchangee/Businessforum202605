@@ -1,0 +1,9 @@
+{
+  "name": "businessforum202605",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-static.mjs",
+    "verify": "node verify-html.mjs --viewport 1920x1080 --viewport 390x844"
+  }
+}

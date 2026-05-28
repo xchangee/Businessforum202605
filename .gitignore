@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+test-results/
+output/
+.playwright-cli/
+dist/
+*.log
+.env
+.env.*
+
+diffuse-rotation-frames/

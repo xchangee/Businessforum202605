@@ -1,0 +1,2576 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>好未来业务论坛</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --surface: rgba(255, 255, 255, 0.38);
+      --text: #2b2f36;
+      --radius: clamp(28px, 4vw, 56px);
+      --page-gap: calc(clamp(44px, 8vmin, 96px) + 50px);
+      --stroke: clamp(1px, 0.175vw, 2.5px);
+      --tal-blue: #0052d9;
+      --blue: #3c82ff;
+      --cyan: #41d8ff;
+      --purple: #8e6cff;
+      --orange: #ffad5b;
+      --ink: #12213f;
+      --muted: #66758f;
+      --line: rgba(49, 99, 187, 0.14);
+      --stage-padding-block: var(--page-gap);
+      --stage-padding-bottom: calc(var(--stage-padding-block) + var(--console-overhang));
+      --stage-padding-inline: var(--page-gap);
+      --console-overhang: clamp(40px, 5.6vh, 58px);
+      --poster-offset-x: 50px;
+      --poster-scale: 1.2;
+      --copy-offset-x: 100px;
+      --copy-offset-y: -2%;
+      --system-offset-x: -70px;
+      --system-offset-y: -50px;
+      --slogan-width: clamp(320px, 27vw, 560px);
+      --slogan-bottom: clamp(24px, 4.2vh, 48px);
+      --edge-fill:
+        radial-gradient(92% 78% at 18% 86%, rgba(54, 199, 132, 0.82), transparent 62%),
+        radial-gradient(84% 72% at 88% 86%, rgba(203, 92, 236, 0.78), transparent 64%),
+        radial-gradient(82% 72% at 84% 20%, rgba(255, 118, 83, 0.74), transparent 66%),
+        radial-gradient(82% 72% at 48% 4%, rgba(255, 216, 83, 0.72), transparent 62%),
+        radial-gradient(76% 74% at 12% 42%, rgba(88, 151, 246, 0.84), transparent 64%),
+        linear-gradient(135deg, #7cc8ff 0%, #f0db87 33%, #f06f5f 58%, #cc6dff 78%, #7dd890 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--edge-fill);
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-family: Google Sans, Inter, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--edge-fill);
+      color: var(--text);
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100vw;
+      width: 100dvw;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 320px;
+      padding:
+        var(--stage-padding-block)
+        var(--stage-padding-inline)
+        var(--stage-padding-bottom);
+      overflow: hidden;
+      isolation: isolate;
+      contain: layout paint style;
+      background: var(--edge-fill);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      z-index: 0;
+      background: var(--edge-fill);
+      transform: translateZ(0) scale(1.02);
+      transform-origin: center;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .diffuse-frame {
+      position: absolute;
+      inset: -2px;
+      z-index: 1;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      object-fit: cover;
+      background: var(--edge-fill);
+      transform: translateZ(0) scaleX(1.28) scaleY(1.22);
+      transform-origin: center;
+      pointer-events: none;
+      user-select: none;
+      backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    .upgrade-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      border-radius: var(--radius);
+      background: transparent;
+      isolation: isolate;
+      contain: layout style;
+      container-type: size;
+    }
+
+    .upgrade-card::before {
+      content: none;
+    }
+
+    .upgrade-card::after {
+      content: none;
+      position: absolute;
+      inset: 0;
+      padding: var(--stroke);
+      border-radius: inherit;
+      background: #ffffff;
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      animation: border-flow 6.5s linear infinite;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .bottom-slogan {
+      position: absolute;
+      left: 50%;
+      bottom: var(--slogan-bottom);
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: var(--slogan-width);
+      max-width: calc(100vw - 48px);
+      transform: translateX(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .bottom-slogan img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      opacity: 1;
+    }
+
+    .card-content {
+      position: absolute;
+      inset: var(--stroke);
+      z-index: 1;
+      overflow: hidden;
+      border-radius: calc(var(--radius) - 2px);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      background:
+        radial-gradient(92% 130% at 14% 0%, rgba(255, 255, 255, 0.74), transparent 60%),
+        radial-gradient(104% 116% at 100% 100%, rgba(65, 216, 255, 0.32), transparent 58%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), var(--surface));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.18),
+        0 30px 76px rgba(24, 37, 67, 0.1);
+      backdrop-filter: blur(44px) saturate(1.55) contrast(1.03);
+      -webkit-backdrop-filter: blur(44px) saturate(1.55) contrast(1.03);
+      contain: layout paint style;
+      container-type: size;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    .card-content::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      z-index: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(124deg, rgba(255, 255, 255, 0.62), transparent 28%, rgba(255, 255, 255, 0.3) 58%, transparent 76%),
+        radial-gradient(80% 52% at 50% 0%, rgba(255, 255, 255, 0.52), transparent 66%);
+      opacity: 0.9;
+      pointer-events: none;
+      transform: translateZ(0);
+    }
+
+    .mac-window-controls {
+      position: absolute;
+      top: clamp(18px, 2.1cqw, 30px);
+      left: clamp(18px, 2.1cqw, 30px);
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      gap: clamp(7px, 0.78cqw, 11px);
+      padding: 4px;
+      pointer-events: auto;
+    }
+
+    .mac-window-control {
+      --control-color: #ff5f57;
+      --control-edge: #e0443e;
+      --control-glyph: rgba(111, 24, 22, 0.82);
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: clamp(11px, 1.38cqw, 19px);
+      aspect-ratio: 1;
+      padding: 0;
+      border: 1px solid color-mix(in srgb, var(--control-edge) 72%, #000 8%);
+      border-radius: 999px;
+      background: var(--control-color);
+      box-shadow:
+        0 1px 1px rgba(255, 255, 255, 0.55),
+        0 6px 12px rgba(19, 36, 67, 0.12);
+      cursor: default;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        filter 140ms ease,
+        transform 140ms ease,
+        box-shadow 140ms ease;
+    }
+
+    .mac-window-control::before,
+    .mac-window-control::after {
+      content: "";
+      position: absolute;
+      opacity: 0;
+      transition: opacity 120ms ease;
+      pointer-events: none;
+    }
+
+    .mac-window-controls:hover .mac-window-control::before,
+    .mac-window-controls:hover .mac-window-control::after,
+    .mac-window-control:focus-visible::before,
+    .mac-window-control:focus-visible::after {
+      opacity: 1;
+    }
+
+    .mac-window-control:hover {
+      filter: saturate(1.08) brightness(1.03);
+      transform: translateY(-1px);
+      box-shadow:
+        0 1px 1px rgba(255, 255, 255, 0.6),
+        0 8px 14px rgba(19, 36, 67, 0.15);
+    }
+
+    .mac-window-control:active {
+      filter: saturate(0.98) brightness(0.94);
+      transform: translateY(0) scale(0.94);
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.18),
+        0 1px 1px rgba(255, 255, 255, 0.42),
+        0 3px 8px rgba(19, 36, 67, 0.1);
+    }
+
+    .mac-window-control:focus-visible {
+      outline: 2px solid rgba(0, 82, 217, 0.35);
+      outline-offset: 3px;
+    }
+
+    .music-player {
+      position: absolute;
+      top: clamp(18px, 2.1cqw, 30px);
+      right: clamp(18px, 2.1cqw, 30px);
+      z-index: 9;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: min(260px, calc(100% - 116px));
+      min-height: clamp(28px, 3.8cqh, 38px);
+      padding: 0 clamp(10px, 1.25cqw, 16px);
+      border: 1px solid rgba(18, 33, 63, 0.11);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.44);
+      color: rgba(18, 33, 63, 0.74);
+      font: inherit;
+      font-size: clamp(10px, 0.9cqw, 14px);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        0 12px 26px rgba(24, 37, 67, 0.08);
+      backdrop-filter: blur(20px) saturate(1.35);
+      -webkit-backdrop-filter: blur(20px) saturate(1.35);
+      transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+    }
+
+    .music-player::before {
+      content: "";
+      width: 6px;
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: rgba(102, 117, 143, 0.5);
+      box-shadow: 0 0 0 3px rgba(102, 117, 143, 0.08);
+      transition:
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+    }
+
+    .music-player:hover,
+    .music-player:focus-visible {
+      color: rgba(18, 33, 63, 0.9);
+      background: rgba(255, 255, 255, 0.62);
+      border-color: rgba(0, 82, 217, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .music-player:focus-visible {
+      outline: 2px solid rgba(0, 82, 217, 0.3);
+      outline-offset: 3px;
+    }
+
+    .music-player:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .music-player.is-playing {
+      border-color: rgba(65, 216, 255, 0.28);
+      background: rgba(255, 255, 255, 0.5);
+      color: rgba(0, 82, 217, 0.82);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.92),
+        0 14px 30px rgba(0, 82, 217, 0.1);
+    }
+
+    .music-player.is-playing::before {
+      background: #41d8ff;
+      box-shadow:
+        0 0 0 3px rgba(65, 216, 255, 0.12),
+        0 0 14px rgba(65, 216, 255, 0.78);
+      animation: music-pulse 1.7s ease-in-out infinite;
+      will-change: opacity, transform;
+    }
+
+    .music-player__label {
+      color: currentColor;
+      font-size: 0.88em;
+      text-transform: uppercase;
+    }
+
+    .music-player__track {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mac-close::before,
+    .mac-close::after {
+      width: 52%;
+      height: 1.5px;
+      border-radius: 999px;
+      background: var(--control-glyph);
+      transform: rotate(45deg);
+    }
+
+    .mac-close::after {
+      transform: rotate(-45deg);
+    }
+
+    .mac-minimize {
+      --control-color: #ffbd2e;
+      --control-edge: #dfa123;
+      --control-glyph: rgba(125, 83, 8, 0.78);
+    }
+
+    .mac-minimize::before {
+      width: 52%;
+      height: 1.5px;
+      border-radius: 999px;
+      background: var(--control-glyph);
+    }
+
+    .mac-zoom {
+      --control-color: #28c840;
+      --control-edge: #1aaa35;
+      --control-glyph: rgba(12, 91, 30, 0.78);
+    }
+
+    .mac-zoom::before {
+      width: 43%;
+      height: 43%;
+      border-top: 1.5px solid var(--control-glyph);
+      border-left: 1.5px solid var(--control-glyph);
+      transform: translate(-8%, -8%);
+    }
+
+    .mac-zoom::after {
+      width: 43%;
+      height: 43%;
+      border-right: 1.5px solid var(--control-glyph);
+      border-bottom: 1.5px solid var(--control-glyph);
+      transform: translate(8%, 8%);
+    }
+
+    .forum-poster {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(78% 110% at 76% 12%, rgba(245, 252, 255, 0.18), transparent 58%),
+        radial-gradient(64% 92% at 100% 88%, rgba(255, 219, 96, 0.14), transparent 70%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2) 52%, rgba(255, 255, 255, 0.12));
+      color: var(--ink);
+      isolation: isolate;
+      contain: layout paint style;
+      container-type: size;
+      backdrop-filter: blur(32px) saturate(1.45);
+      -webkit-backdrop-filter: blur(32px) saturate(1.45);
+      transform: translate3d(var(--poster-offset-x), 0, 0) scale(var(--poster-scale));
+      transform-origin: center center;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    .forum-poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(circle at 61% 44%, #000 0 48%, transparent 75%);
+      opacity: 0.72;
+      transform: translateZ(0);
+    }
+
+    .forum-poster::after {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      z-index: 1;
+      background:
+        linear-gradient(100deg, transparent 34%, rgba(65, 216, 255, 0.16) 45%, rgba(255, 255, 255, 0.36) 51%, transparent 62%),
+        radial-gradient(circle at 62% 48%, rgba(65, 216, 255, 0.16), transparent 20%);
+      transform: translateX(-28%);
+      animation: light-sweep 8s ease-in-out infinite;
+      pointer-events: none;
+      backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    .forum-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+      mask-image: linear-gradient(90deg, transparent, #000 24%, #000 88%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 88%, transparent);
+      opacity: 0.52;
+    }
+
+    .forum-particles::before,
+    .forum-particles::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    .forum-particles::before {
+      inset: -72px;
+      background-image: radial-gradient(circle, rgba(0, 82, 217, 0.36) 0 1.5px, transparent 1.8px);
+      background-size: 72px 72px;
+      background-position: 7px 19px;
+      animation: particle-drift-primary 18s linear infinite;
+    }
+
+    .forum-particles::after {
+      inset: -108px;
+      background-image: radial-gradient(circle, rgba(65, 216, 255, 0.32) 0 1.2px, transparent 1.6px);
+      background-size: 108px 108px;
+      background-position: 41px 33px;
+      animation: particle-drift-secondary 18s linear infinite;
+    }
+
+    .forum-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      padding: clamp(34px, 8.7cqh, 96px) clamp(32px, 7.2cqw, 112px) clamp(80px, 13.4cqh, 140px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.96fr);
+      gap: clamp(24px, 4.6cqw, 72px);
+      align-items: center;
+    }
+
+    .forum-copy {
+      min-width: 0;
+      max-width: 100%;
+      transform: translateX(var(--copy-offset-x)) translateY(var(--copy-offset-y));
+    }
+
+    .forum-year {
+      margin: 0 0 3.4%;
+      color: rgba(0, 82, 217, 0.78);
+      font-size: clamp(12px, 1.04vw, 20px);
+      font-weight: 800;
+      letter-spacing: 0.24em;
+    }
+
+    .forum-title {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(36px, 6.2cqw, 104px);
+      line-height: 1.04;
+      font-weight: 900;
+      letter-spacing: 0;
+      color: #132443;
+      text-wrap: balance;
+      overflow-wrap: anywhere;
+    }
+
+    .forum-title span {
+      display: block;
+    }
+
+    .forum-title .forum-title-main {
+      font-size: 1.2em;
+      font-weight: 950;
+    }
+
+    .forum-subtitle {
+      margin: 4.2% 0 0;
+      max-width: min(100%, 34em);
+      font-size: clamp(14px, 1.6cqw, 26px);
+      line-height: 1.25;
+      height: 1.25em;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: rgba(18, 33, 63, 0.72);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+      overflow-wrap: normal;
+    }
+
+    .ai-greeting__prefix {
+      white-space: nowrap;
+    }
+
+    .ai-greeting__cursor {
+      display: inline-block;
+      width: 0.08em;
+      height: 0.9em;
+      margin-left: 0.12em;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 0.36em currentColor;
+      opacity: 0.6;
+      transform: translateY(0.08em);
+      transform-origin: center;
+      animation: cursor-breathe 1.18s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .forum-accent-line {
+      display: none;
+      width: 42%;
+      height: 6px;
+      margin-top: 7.2%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--tal-blue), var(--cyan), var(--orange));
+      box-shadow: 0 0 28px rgba(65, 216, 255, 0.42);
+    }
+
+    .forum-system {
+      position: relative;
+      aspect-ratio: 1.05;
+      width: min(100%, 68cqh);
+      min-height: 0;
+      justify-self: center;
+      transform: translateX(var(--system-offset-x)) translateY(var(--system-offset-y));
+    }
+
+    .forum-glass-card {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      border-radius: 22px;
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.24) 58%, rgba(255, 255, 255, 0.18));
+      backdrop-filter: blur(22px) saturate(1.4);
+      -webkit-backdrop-filter: blur(22px) saturate(1.4);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.72),
+        0 22px 55px rgba(38, 78, 156, 0.11);
+    }
+
+    .forum-metric {
+      left: 1%;
+      top: calc(7% + 40px);
+      width: 36%;
+      padding: 20px;
+    }
+
+    .forum-metric small,
+    .forum-module small {
+      display: block;
+      color: var(--muted);
+      font-size: clamp(10px, 0.73vw, 14px);
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+
+    .forum-metric strong {
+      display: block;
+      margin-top: 10px;
+      color: var(--tal-blue);
+      font-size: clamp(28px, 3.13vw, 60px);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .forum-bars {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .forum-bars span {
+      height: 7px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(0, 82, 217, 0.78), rgba(65, 216, 255, 0.32));
+    }
+
+    .forum-bars span:nth-child(2) {
+      width: 72%;
+    }
+
+    .forum-bars span:nth-child(3) {
+      width: 48%;
+    }
+
+    .forum-chip {
+      position: absolute;
+      left: 25%;
+      top: calc(21% + 40px);
+      width: 45%;
+      aspect-ratio: 1;
+      border-radius: 32px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.58), rgba(236,246,255,0.34)) padding-box,
+        linear-gradient(135deg, rgba(65,216,255,0.5), rgba(142,108,255,0.5), rgba(255,173,91,0.5)) border-box;
+      border: 2px solid transparent;
+      box-shadow:
+        0 0 70px rgba(65, 216, 255, 0.22),
+        inset 0 0 28px rgba(0, 82, 217, 0.08);
+      display: grid;
+      place-items: center;
+    }
+
+    .forum-chip::before,
+    .forum-chip::after {
+      content: "";
+      position: absolute;
+      inset: 16%;
+      border: 1px solid rgba(0, 82, 217, 0.18);
+      border-radius: 22px;
+    }
+
+    .forum-chip::after {
+      inset: 29%;
+      background:
+        radial-gradient(circle at center, rgba(0, 82, 217, 0.11), transparent 54%),
+        linear-gradient(90deg, transparent 48%, rgba(0, 82, 217, 0.22) 49% 51%, transparent 52%),
+        linear-gradient(0deg, transparent 48%, rgba(0, 82, 217, 0.22) 49% 51%, transparent 52%);
+    }
+
+    .forum-chip-logo {
+      position: relative;
+      z-index: 2;
+      width: 36.8%;
+      height: auto;
+      filter: drop-shadow(0 14px 24px rgba(0, 82, 217, 0.16));
+      animation: logo-breathe 2.8s ease-in-out infinite;
+      transform-origin: center;
+      will-change: transform;
+    }
+
+    .forum-pin {
+      position: absolute;
+      width: 8px;
+      height: 32px;
+      border-radius: 99px;
+      background: linear-gradient(var(--cyan), rgba(0, 82, 217, 0.28));
+      opacity: 0.58;
+    }
+
+    .forum-pin:nth-child(1) {
+      left: 18%;
+      top: -18px;
+    }
+
+    .forum-pin:nth-child(2) {
+      right: 18%;
+      top: -18px;
+    }
+
+    .forum-pin:nth-child(3) {
+      left: 18%;
+      bottom: -18px;
+    }
+
+    .forum-pin:nth-child(4) {
+      right: 18%;
+      bottom: -18px;
+    }
+
+    .forum-network {
+      position: absolute;
+      inset: 2% 0 0 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .forum-network path {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 7 13;
+      animation: dash-flow 8s linear infinite;
+      will-change: stroke-dashoffset;
+    }
+
+    .forum-network circle {
+      filter: drop-shadow(0 0 10px rgba(65, 216, 255, 0.65));
+      animation: blink 3.2s ease-in-out infinite;
+      transform-origin: center;
+      will-change: opacity, transform;
+    }
+
+    .forum-module {
+      right: 0;
+      bottom: 8%;
+      width: 43%;
+      padding: 18px 20px;
+    }
+
+    .forum-curve {
+      width: 100%;
+      height: 82px;
+      margin-top: 8px;
+    }
+
+    .mock-console {
+      position: absolute;
+      left: clamp(18px, 4.1cqw, 56px);
+      right: clamp(18px, 4.1cqw, 56px);
+      --mock-status-lift: 10px;
+      --mock-status-height: var(--console-overhang);
+      bottom: calc(var(--mock-status-lift) - var(--mock-status-height));
+      z-index: auto;
+      display: grid;
+      justify-items: center;
+      color: rgba(87, 92, 101, 0.74);
+      font-size: clamp(12px, 1.02cqw, 17px);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .mock-prompt-bar {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      z-index: 2;
+      width: 100%;
+      min-height: clamp(52px, 8.1cqh, 76px);
+      padding: 0 clamp(10px, 1.8cqw, 22px);
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      border-radius: clamp(24px, 3.4cqw, 40px);
+      background:
+        radial-gradient(110% 180% at 10% -90%, rgba(255, 255, 255, 0.82), transparent 58%),
+        radial-gradient(90% 150% at 88% 140%, rgba(65, 216, 255, 0.18), transparent 62%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2) 46%, rgba(255, 255, 255, 0.36)),
+        rgba(255, 255, 255, 0.16);
+      box-shadow:
+        0 30px 72px rgba(24, 37, 67, 0.14),
+        0 8px 24px rgba(255, 255, 255, 0.3) inset,
+        0 -16px 30px rgba(65, 216, 255, 0.09) inset,
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(32px) saturate(1.7) contrast(1.02);
+      -webkit-backdrop-filter: blur(32px) saturate(1.7) contrast(1.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: clamp(12px, 2cqw, 28px);
+      contain: paint;
+      transform: translate3d(0, -40px, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    .mock-prompt-bar::before,
+    .mock-prompt-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .mock-prompt-bar::before {
+      z-index: 1;
+      padding: 1px;
+      background:
+        linear-gradient(112deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.18) 26%, rgba(65, 216, 255, 0.34) 48%, rgba(142, 108, 255, 0.18) 66%, rgba(255, 255, 255, 0.68));
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+    }
+
+    .mock-prompt-bar::after {
+      z-index: 1;
+      inset: 1px;
+      background:
+        linear-gradient(100deg, transparent 0 12%, rgba(255, 255, 255, 0.7) 22%, rgba(255, 255, 255, 0.15) 32%, transparent 50%),
+        radial-gradient(70% 55% at 50% 0%, rgba(255, 255, 255, 0.7), transparent 58%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 48%);
+      mix-blend-mode: screen;
+      opacity: 0.82;
+    }
+
+    .mock-prompt-bar > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .mock-left-tools,
+    .mock-right-tools,
+    .mock-control,
+    .mock-status-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .mock-select-host {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      pointer-events: auto;
+    }
+
+    .mock-left-tools,
+    .mock-right-tools {
+      gap: clamp(8px, 1.4cqw, 18px);
+      min-width: 0;
+    }
+
+    .mock-icon-button,
+    .mock-send {
+      width: clamp(30px, 4.2cqh, 48px);
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(87, 92, 101, 0.66);
+      display: grid;
+      place-items: center;
+      padding: 0;
+      pointer-events: auto;
+      transition:
+        color 180ms ease,
+        background 180ms ease,
+        transform 180ms ease;
+    }
+
+    .mock-icon-button:hover {
+      color: rgba(18, 33, 63, 0.82);
+      background: rgba(255, 255, 255, 0.34);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.82),
+        0 10px 20px rgba(24, 37, 67, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .mock-send {
+      width: clamp(36px, 5.2cqh, 56px);
+      color: #ffffff;
+      background: #15191f;
+      box-shadow: 0 10px 24px rgba(21, 25, 31, 0.2);
+    }
+
+    .mock-send:hover {
+      transform: translateY(-1px);
+      background: #05080d;
+    }
+
+    .mock-control {
+      gap: clamp(5px, 0.7cqw, 9px);
+      min-width: 0;
+      min-height: clamp(30px, 4.4cqh, 44px);
+      padding: 0 clamp(10px, 1.35cqw, 18px);
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(87, 92, 101, 0.72);
+      font-size: clamp(12px, 1.05cqw, 18px);
+      font-weight: 500;
+      font-family: inherit;
+      white-space: nowrap;
+      cursor: pointer;
+      pointer-events: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        background 180ms ease,
+        color 180ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .mock-control:hover,
+    .mock-control:focus-visible,
+    .mock-select-host[data-open="true"] .mock-control {
+      color: rgba(22, 26, 32, 0.86);
+      background: rgba(255, 255, 255, 0.42);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.88),
+        0 10px 20px rgba(24, 37, 67, 0.08);
+    }
+
+    .mock-control:focus-visible,
+    .mock-menu-row:focus-visible {
+      outline: 2px solid rgba(0, 82, 217, 0.3);
+      outline-offset: 2px;
+    }
+
+    .mock-control:active {
+      transform: translateY(1px);
+    }
+
+    .mock-control-active,
+    .mock-select-host[data-open="true"] .mock-control-active {
+      color: #ff5a00;
+      background: rgba(255, 90, 0, 0.09);
+    }
+
+    .mock-control-active:hover,
+    .mock-control-active:focus-visible {
+      color: #f15a00;
+      background: rgba(255, 90, 0, 0.12);
+    }
+
+    .mock-model {
+      color: #161a20;
+      font-weight: 700;
+    }
+
+    .mock-icon {
+      width: clamp(17px, 1.7cqw, 24px);
+      height: clamp(17px, 1.7cqw, 24px);
+      flex: 0 0 auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .mock-menu-chevron {
+      transition: transform 180ms ease;
+    }
+
+    .mock-select-host[data-open="true"] .mock-menu-chevron {
+      transform: rotate(180deg);
+    }
+
+    .mock-send .mock-icon {
+      width: clamp(19px, 1.95cqw, 28px);
+      height: clamp(19px, 1.95cqw, 28px);
+      stroke-width: 2.2;
+    }
+
+    .mock-status-bar {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      width: min(94%, 1380px);
+      min-height: var(--mock-status-height);
+      margin-top: -30px;
+      padding: 0 clamp(18px, 2.4cqw, 32px);
+      border-radius: 0 0 clamp(20px, 2.7cqw, 34px) clamp(20px, 2.7cqw, 34px);
+      background: rgba(255, 255, 255, 0.44);
+      box-shadow:
+        0 -10px 24px rgba(255, 255, 255, 0.12),
+        0 16px 34px rgba(24, 37, 67, 0.1),
+        inset 0 10px 18px rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      gap: clamp(18px, 3cqw, 48px);
+      color: rgba(87, 92, 101, 0.68);
+      z-index: 0;
+      backdrop-filter: blur(24px) saturate(1.55) contrast(1.02);
+      -webkit-backdrop-filter: blur(24px) saturate(1.55) contrast(1.02);
+      contain: paint;
+    }
+
+    .mock-status-bar::before {
+      content: none;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .mock-status-bar > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .mock-status-item {
+      gap: clamp(6px, 0.8cqw, 10px);
+      min-width: 0;
+      min-height: clamp(30px, 4.2cqh, 42px);
+      padding: 0 clamp(8px, 1.15cqw, 14px);
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: inherit;
+      font-size: clamp(11px, 1cqw, 17px);
+      font-weight: 500;
+      font-family: inherit;
+      white-space: nowrap;
+      cursor: pointer;
+      pointer-events: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        background 180ms ease,
+        color 180ms ease,
+        transform 180ms ease;
+    }
+
+    .mock-status-item:hover,
+    .mock-status-item:focus-visible,
+    .mock-select-host[data-open="true"] .mock-status-item {
+      color: rgba(22, 26, 32, 0.8);
+      background: rgba(255, 255, 255, 0.46);
+    }
+
+    .mock-status-item-static {
+      cursor: default;
+    }
+
+    .mock-status-item-static:hover {
+      color: inherit;
+      background: transparent;
+    }
+
+    .mock-status-item:focus-visible {
+      outline: 2px solid rgba(0, 82, 217, 0.28);
+      outline-offset: 2px;
+    }
+
+    .mock-menu-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+    }
+
+    .mock-menu {
+      --menu-width: 320px;
+      --menu-scale: 0.5;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: min(var(--menu-width), calc(100vw - 32px));
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88)),
+        rgba(255, 255, 255, 0.82);
+      box-shadow:
+        0 24px 54px rgba(16, 24, 40, 0.14),
+        0 8px 18px rgba(16, 24, 40, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      color: #20242a;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 8px, 0) scale(calc(var(--menu-scale) * 0.985));
+      transform-origin: var(--menu-origin, bottom center);
+      pointer-events: none;
+      backdrop-filter: blur(26px) saturate(1.35);
+      -webkit-backdrop-filter: blur(26px) saturate(1.35);
+      transition:
+        opacity 160ms ease,
+        visibility 160ms ease,
+        transform 160ms ease;
+      backface-visibility: hidden;
+      contain: paint;
+      will-change: opacity, transform;
+    }
+
+    .mock-menu.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate3d(0, 0, 0) scale(var(--menu-scale));
+      pointer-events: auto;
+    }
+
+    .mock-menu-permission {
+      --menu-width: 294px;
+      padding: 12px;
+      border-radius: 24px;
+    }
+
+    .mock-menu-model {
+      --menu-width: 418px;
+      padding: 14px 16px 16px;
+      border-radius: 22px;
+    }
+
+    .mock-menu-launch {
+      --menu-width: 434px;
+      padding: 14px 16px 16px;
+      border-radius: 22px;
+    }
+
+    .mock-menu-title {
+      margin: 0;
+      padding: 5px 10px 12px;
+      color: #96999f;
+      font-size: 25px;
+      line-height: 1.15;
+      font-weight: 500;
+    }
+
+    .mock-menu-row {
+      width: 100%;
+      min-height: 52px;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) 26px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 16px;
+      background: transparent;
+      color: #20242a;
+      font-family: inherit;
+      font-size: 26px;
+      line-height: 1.1;
+      text-align: left;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        background 140ms ease,
+        color 140ms ease;
+    }
+
+    .mock-menu-permission .mock-menu-row {
+      min-height: 52px;
+      font-size: 25px;
+    }
+
+    .mock-menu-model .mock-menu-row,
+    .mock-menu-launch .mock-menu-row {
+      min-height: 56px;
+    }
+
+    .mock-menu-model .mock-menu-row:not(.mock-menu-action) {
+      grid-template-columns: minmax(0, 1fr) 26px;
+    }
+
+    .mock-menu-row:hover,
+    .mock-menu-row:focus-visible,
+    .mock-menu-row[aria-checked="true"] {
+      background: rgba(0, 0, 0, 0.055);
+    }
+
+    .mock-menu-row:disabled {
+      color: #a3a7ad;
+      cursor: default;
+    }
+
+    .mock-menu-row:disabled:hover {
+      background: transparent;
+    }
+
+    .mock-menu-row-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mock-menu-row-icon,
+    .mock-menu-row-check,
+    .mock-menu-row-next {
+      width: 25px;
+      height: 25px;
+      color: #62676d;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .mock-menu-row-check {
+      justify-self: center;
+      color: #20242a;
+      opacity: 0;
+    }
+
+    .mock-menu-row-next {
+      justify-self: center;
+      color: #a4a8ad;
+    }
+
+    .mock-menu-row[aria-checked="true"] .mock-menu-row-check {
+      opacity: 1;
+    }
+
+    .mock-menu-row:disabled .mock-menu-row-icon,
+    .mock-menu-row:disabled .mock-menu-row-next {
+      color: #aeb2b7;
+    }
+
+    .mock-menu-separator {
+      height: 1px;
+      margin: 10px 10px;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .mock-menu-action {
+      grid-template-columns: minmax(0, 1fr) 26px;
+    }
+
+    .mock-menu-action .mock-menu-row-label {
+      grid-column: 1;
+    }
+
+    .mock-menu-action .mock-menu-row-next {
+      grid-column: 2;
+    }
+
+    .mock-menu-launch .mock-menu-row {
+      grid-template-columns: 30px minmax(0, 1fr) 28px;
+      gap: 13px;
+    }
+
+    .mock-menu-external {
+      width: 24px;
+      height: 24px;
+      justify-self: center;
+      color: #62676d;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .mock-menu-model .mock-menu-row:first-of-type {
+      color: #1d2229;
+    }
+
+    @media (max-width: 760px) {
+      .mock-menu {
+        --menu-width: min(352px, calc(100vw - 28px));
+        padding: 12px;
+      }
+
+      .mock-menu-row {
+        min-height: 48px;
+        font-size: 20px;
+      }
+
+      .mock-menu-title {
+        font-size: 20px;
+      }
+    }
+
+    @property --angle {
+      syntax: "<angle>";
+      initial-value: 215deg;
+      inherits: false;
+    }
+
+    @keyframes border-flow {
+      to {
+        --angle: 575deg;
+      }
+    }
+
+    @keyframes light-sweep {
+      0%,
+      20% {
+        transform: translateX(-40%) rotate(0.001deg);
+      }
+
+      62%,
+      100% {
+        transform: translateX(34%) rotate(0.001deg);
+      }
+    }
+
+    @keyframes logo-breathe {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes dash-flow {
+      to {
+        stroke-dashoffset: -160;
+      }
+    }
+
+    @keyframes blink {
+      0%,
+      100% {
+        opacity: 0.54;
+        transform: scale(0.96);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes particle-drift-primary {
+      to {
+        transform: translate3d(72px, 0, 0);
+      }
+    }
+
+    @keyframes cursor-breathe {
+      0%,
+      100% {
+        transform: translateY(0.08em) scaleY(0.86);
+      }
+
+      50% {
+        transform: translateY(0.08em) scaleY(1.08);
+      }
+    }
+
+    @keyframes particle-drift-secondary {
+      to {
+        transform: translate3d(-108px, 0, 0);
+      }
+    }
+
+    @keyframes music-pulse {
+      0%,
+      100% {
+        transform: scale(0.9);
+        opacity: 0.74;
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+      }
+    }
+
+    @container (max-width: 980px) {
+      .forum-content {
+        grid-template-columns: minmax(0, 1fr) minmax(230px, 0.82fr);
+        padding-right: clamp(26px, 6cqw, 64px);
+        padding-left: clamp(26px, 6cqw, 64px);
+      }
+
+      .forum-metric {
+        width: 40%;
+        padding: 16px;
+      }
+
+      .forum-module {
+        width: 46%;
+        padding: 14px 16px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --page-gap: clamp(24px, 7vmin, 56px);
+        --slogan-width: min(72vw, 430px);
+        --slogan-bottom: clamp(16px, 3.2vh, 28px);
+      }
+    }
+
+    @media (min-aspect-ratio: 8 / 3) {
+      :root {
+        --stage-padding-block: clamp(44px, 8vh, 72px);
+        --stage-padding-inline: clamp(88px, 5.8vw, 140px);
+      }
+    }
+
+    @container (min-aspect-ratio: 8 / 3) and (min-width: 1000px) {
+      .mock-console {
+        bottom: clamp(26px, 3.2cqh, 44px);
+      }
+
+      .mock-prompt-bar {
+        transform: none;
+      }
+
+      .mock-status-bar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stage {
+        padding:
+          clamp(24px, 8vmin, 36px)
+          clamp(20px, 6.5vmin, 28px)
+          calc(clamp(24px, 8vmin, 36px) + 52px);
+      }
+    }
+
+    @container (max-width: 760px) {
+      .forum-poster {
+        --poster-offset-x: 0px;
+        --poster-scale: 1;
+      }
+
+      .forum-content {
+        grid-template-columns: 1fr;
+        padding: clamp(34px, 10cqh, 72px) 8% clamp(108px, 26cqh, 156px);
+        align-content: center;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .forum-copy {
+        --copy-offset-x: 0px;
+        --copy-offset-y: 0%;
+        width: min(100%, 520px);
+      }
+
+      .forum-system {
+        display: none;
+      }
+
+      .mock-console {
+        left: 6%;
+        right: 6%;
+        --mock-status-height: 52px;
+        bottom: calc(var(--mock-status-lift) - var(--mock-status-height));
+      }
+
+      .mock-prompt-bar {
+        min-height: 54px;
+        padding: 0 10px;
+        gap: 8px;
+      }
+
+      .mock-control {
+        font-size: 12px;
+      }
+
+      .mock-control-permission {
+        display: none;
+      }
+
+      .mock-status-bar {
+        width: 92%;
+        min-height: 52px;
+        padding: 7px 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+      }
+
+      .forum-title {
+        max-width: 100%;
+        font-size: clamp(36px, 11.8cqw, 66px);
+      }
+
+      .forum-title .forum-title-main {
+        font-size: 1.12em;
+      }
+
+      .forum-subtitle {
+        max-width: 100%;
+        font-size: clamp(11px, 3.55cqw, 16px);
+      }
+
+    }
+
+    @container (max-height: 500px) {
+      .forum-content {
+        padding-top: clamp(24px, 7cqh, 44px);
+        padding-bottom: clamp(70px, 17cqh, 96px);
+      }
+
+      .forum-system {
+        --system-offset-y: -18px;
+        width: min(100%, 60cqh);
+      }
+
+      .forum-year {
+        margin-bottom: 2.2%;
+      }
+
+      .forum-title {
+        font-size: clamp(34px, 7.2cqw, 76px);
+      }
+
+      .forum-subtitle {
+        margin-top: 2.8%;
+      }
+
+      .mock-console {
+        bottom: calc(var(--mock-status-lift) + 8px);
+        transform: scale(0.86);
+        transform-origin: bottom center;
+      }
+
+      .mock-status-bar {
+        display: none;
+      }
+
+      .mock-prompt-bar {
+        min-height: 46px;
+      }
+
+    }
+
+    @container (min-aspect-ratio: 8 / 3) and (min-width: 1000px) and (max-height: 640px) {
+      .forum-content {
+        grid-template-columns: minmax(0, 0.92fr) minmax(380px, 1.08fr);
+        gap: clamp(12px, 2cqw, 42px);
+        padding:
+          clamp(28px, 7.6cqh, 58px)
+          clamp(46px, 6.2cqw, 108px)
+          clamp(70px, 14cqh, 104px);
+      }
+
+      .forum-copy {
+        --copy-offset-x: clamp(52px, 4.3cqw, 82px);
+        --copy-offset-y: -1%;
+      }
+
+      .forum-title {
+        font-size: clamp(54px, 5.2cqw, 88px);
+      }
+
+      .forum-subtitle {
+        max-width: min(100%, 36em);
+        font-size: clamp(14px, 1.46cqw, 22px);
+      }
+
+      .forum-system {
+        --system-offset-x: clamp(-190px, -9cqw, -126px);
+        --system-offset-y: -18px;
+        width: min(100%, 78cqh);
+      }
+
+      .forum-module {
+        right: -24%;
+      }
+
+      .mock-console {
+        bottom: clamp(14px, 3cqh, 22px);
+      }
+
+      .mock-prompt-bar {
+        transform: none;
+      }
+
+      .mock-status-bar {
+        display: none;
+      }
+    }
+
+    @container (min-aspect-ratio: 8 / 3) and (max-height: 500px) {
+      .forum-copy {
+        --copy-offset-x: clamp(84px, 7cqw, 112px);
+        --copy-offset-y: 1%;
+      }
+
+      .forum-title {
+        font-size: clamp(46px, 4.7cqw, 70px);
+      }
+
+      .forum-subtitle {
+        font-size: clamp(12px, 1.28cqw, 17px);
+      }
+    }
+
+    @container (max-width: 520px) {
+      .forum-content {
+        padding: 16% 8% 30%;
+      }
+
+      .mac-window-controls {
+        top: 14px;
+        left: 14px;
+        gap: 6px;
+      }
+
+      .mac-window-control {
+        width: 10px;
+      }
+
+      .music-player {
+        top: 14px;
+        right: 14px;
+        max-width: calc(100% - 92px);
+        min-height: 28px;
+        padding: 0 10px;
+        gap: 6px;
+        font-size: 10px;
+      }
+    }
+
+    @media (width: 6144px) and (height: 2304px) {
+      :root {
+        --stage-scale: 3.2;
+        --stage-padding-block: 57.6px;
+        --stage-padding-bottom: 97.92px;
+        --stage-padding-inline: 111.36px;
+        --console-overhang: 40.32px;
+        --slogan-width: 518.4px;
+        --slogan-bottom: 30.24px;
+      }
+
+      html,
+      body {
+        width: 6144px;
+        height: 2304px;
+        min-height: 2304px;
+        overflow: hidden;
+      }
+
+      .stage {
+        width: 1920px;
+        height: 720px;
+        min-height: 720px;
+        zoom: var(--stage-scale);
+        transform: none;
+        transform-origin: top left;
+        backface-visibility: hidden;
+      }
+
+      .upgrade-card {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        height: 100%;
+        transform: none;
+        transform-origin: center center;
+      }
+
+      .forum-year {
+        font-size: 19.968px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Gradient upgrade card demo">
+    <video class="diffuse-frame" aria-hidden="true" autoplay loop muted playsinline preload="auto" poster="media/diffuse-poster.png?v=a3af937f41fe" disablepictureinpicture>
+      <source src="media/diffuse-rotation.mp4?v=a3af937f41fe" type="video/mp4">
+      <source src="media/diffuse-rotation.webm?v=a3af937f41fe" type="video/webm">
+    </video>
+    <article class="upgrade-card" aria-label="Responsive diffuse gradient border">
+      <div class="card-content">
+        <div class="mac-window-controls" aria-label="macOS 窗口控制">
+          <button class="mac-window-control mac-close" type="button" aria-label="关闭"></button>
+          <button class="mac-window-control mac-minimize" type="button" aria-label="最小化"></button>
+          <button class="mac-window-control mac-zoom" type="button" aria-label="缩放"></button>
+        </div>
+        <button class="music-player" type="button" aria-label="播放背景音乐：小河淌水" aria-pressed="false" data-music-toggle>
+          <span class="music-player__label">BGM</span>
+          <span class="music-player__track" data-music-track>小河淌水</span>
+        </button>
+        <section class="forum-poster" aria-label="好未来业务论坛主视觉">
+          <div class="forum-particles"></div>
+          <div class="forum-content">
+            <div class="forum-copy">
+              <p class="forum-year">BUSINESS FORUM 2026</p>
+              <h1 class="forum-title">
+                <span>好未来</span>
+                <span class="forum-title-main">业务论坛</span>
+              </h1>
+              <p class="forum-subtitle" aria-live="polite" aria-label="参会者专属问候">
+                <span class="ai-greeting__prefix">&gt; hi </span><span data-greeting-text>林知远老师丨保持勇敢，让漂亮转折自然发生</span><span class="ai-greeting__cursor" aria-hidden="true"></span>
+              </p>
+              <div class="forum-accent-line"></div>
+            </div>
+
+            <div class="forum-system" aria-hidden="true">
+              <svg class="forum-network" viewBox="0 0 640 640">
+                <defs>
+                  <linearGradient id="flowA" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#41d8ff" stop-opacity="0.95"/>
+                    <stop offset="52%" stop-color="#0052d9" stop-opacity="0.52"/>
+                    <stop offset="100%" stop-color="#ffad5b" stop-opacity="0.84"/>
+                  </linearGradient>
+                  <linearGradient id="flowB" x1="1" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#8e6cff" stop-opacity="0.86"/>
+                    <stop offset="100%" stop-color="#41d8ff" stop-opacity="0.72"/>
+                  </linearGradient>
+                </defs>
+                <path d="M72 126 C170 78 227 150 282 226 S432 324 568 180" stroke="url(#flowA)"/>
+                <path d="M84 464 C178 358 248 446 326 342 S478 220 572 296" stroke="url(#flowB)"/>
+                <path d="M142 242 C210 284 230 340 318 340 S428 408 500 506" stroke="url(#flowA)"/>
+                <circle cx="72" cy="126" r="8" fill="#41d8ff"/>
+                <circle cx="282" cy="226" r="7" fill="#0052d9"/>
+                <circle cx="568" cy="180" r="9" fill="#ffad5b"/>
+                <circle cx="84" cy="464" r="8" fill="#8e6cff"/>
+                <circle cx="326" cy="342" r="10" fill="#41d8ff"/>
+                <circle cx="500" cy="506" r="8" fill="#0052d9"/>
+              </svg>
+
+              <div class="forum-glass-card forum-metric">
+                <small>GROWTH INDEX</small>
+                <strong>AI+</strong>
+                <div class="forum-bars">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="forum-chip">
+                <span class="forum-pin"></span>
+                <span class="forum-pin"></span>
+                <span class="forum-pin"></span>
+                <span class="forum-pin"></span>
+                <img class="forum-chip-logo" src="assets/logo.svg?v=a3af937f41fe" alt="TAL logo">
+              </div>
+
+              <div class="forum-glass-card forum-module">
+                <small>BUSINESS NODES</small>
+                <svg class="forum-curve" viewBox="0 0 280 92">
+                  <defs>
+                    <linearGradient id="curveLine" x1="0" y1="1" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#0052d9"/>
+                      <stop offset="52%" stop-color="#41d8ff"/>
+                      <stop offset="100%" stop-color="#ffad5b"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M6 78 C58 66 74 42 112 50 C156 59 171 19 214 24 C242 27 258 12 274 8" fill="none" stroke="url(#curveLine)" stroke-width="7" stroke-linecap="round"/>
+                  <path d="M6 78 C58 66 74 42 112 50 C156 59 171 19 214 24 C242 27 258 12 274 8 L274 92 L6 92 Z" fill="rgba(65,216,255,0.12)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+      <div class="mock-console" aria-label="模拟操作栏">
+          <div class="mock-prompt-bar">
+            <div class="mock-left-tools">
+              <button class="mock-icon-button" type="button" aria-label="添加">
+                <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+              </button>
+              <div class="mock-select-host">
+                <button class="mock-control mock-control-permission mock-menu-trigger" id="permission-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="permission-menu" data-menu-trigger="permission-menu">
+                  <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 5 6v5.2c0 4.2 2.8 7.3 7 8.8 4.2-1.5 7-4.6 7-8.8V6Z"/>
+                    <path d="M12 8v5"/>
+                    <path d="M12 16h.01"/>
+                  </svg>
+                  <span data-trigger-label>默认权限</span>
+                  <svg class="mock-icon mock-menu-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="mock-right-tools">
+              <div class="mock-select-host">
+                <button class="mock-control mock-menu-trigger" id="model-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" data-menu-trigger="model-menu">
+                  <span class="mock-model">5.5</span>
+                  <span data-trigger-label>超高</span>
+                  <svg class="mock-icon mock-menu-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
+                </button>
+              </div>
+              <button class="mock-icon-button" type="button" aria-label="语音">
+                <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/>
+                  <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+                  <path d="M12 18v3M8 21h8"/>
+                </svg>
+              </button>
+              <button class="mock-send" type="button" aria-label="发送">
+                <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 19V5"/>
+                  <path d="m5 12 7-7 7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="mock-status-bar">
+            <span class="mock-status-item mock-status-item-static">
+              <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5Z"/>
+                <path d="M8 15h8"/>
+              </svg>
+              <span>BUSINESSFORUM202605</span>
+              <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </span>
+            <div class="mock-select-host">
+              <button class="mock-status-item mock-menu-trigger" id="launch-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="launch-menu" data-menu-trigger="launch-menu">
+                <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="5" width="16" height="11" rx="2"/>
+                  <path d="M8 19h8M12 16v3"/>
+                </svg>
+                <span data-trigger-label>本地模式</span>
+                <svg class="mock-icon mock-menu-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+            </div>
+            <span class="mock-status-item mock-status-item-static">
+              <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="6" cy="6" r="2"/>
+                <circle cx="18" cy="6" r="2"/>
+                <circle cx="6" cy="18" r="2"/>
+                <path d="M8 6h6a4 4 0 0 1 4 4v0"/>
+                <path d="M6 8v8"/>
+              </svg>
+              <span>main</span>
+              <svg class="mock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </span>
+          </div>
+          <div class="mock-menu-layer" aria-hidden="false">
+            <div class="mock-menu mock-menu-permission" id="permission-menu" role="menu" aria-labelledby="permission-trigger" data-placement="top" data-align="left" hidden>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="true" data-label="默认权限">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V11"/>
+                  <path d="M11 10V4.5a1.5 1.5 0 0 1 3 0V11"/>
+                  <path d="M14 10V6a1.5 1.5 0 0 1 3 0v7"/>
+                  <path d="M8 11 7 9.8a1.5 1.5 0 0 0-2.4 1.8l3.8 5.1A6 6 0 0 0 13.2 19H14a5 5 0 0 0 5-5v-1"/>
+                </svg>
+                <span class="mock-menu-row-label">默认权限</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="自动审查">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3 5 6v5c0 4.2 2.8 7.4 7 9 4.2-1.6 7-4.8 7-9V6Z"/>
+                  <path d="m9 12 2 2 4-5"/>
+                </svg>
+                <span class="mock-menu-row-label">自动审查</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="完全访问权限">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3 5 6v5.2c0 4.2 2.8 7.3 7 8.8 4.2-1.5 7-4.6 7-8.8V6Z"/>
+                  <path d="M12 8v5"/>
+                  <path d="M12 16h.01"/>
+                </svg>
+                <span class="mock-menu-row-label">完全访问权限</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="mock-menu mock-menu-model" id="model-menu" role="menu" aria-labelledby="model-trigger" data-placement="top" data-align="right" hidden>
+              <p class="mock-menu-title">智能</p>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="低">
+                <span class="mock-menu-row-label">低</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="中">
+                <span class="mock-menu-row-label">中</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="高">
+                <span class="mock-menu-row-label">高</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="true" data-label="超高">
+                <span class="mock-menu-row-label">超高</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <div class="mock-menu-separator" role="separator"></div>
+              <button class="mock-menu-row mock-menu-action" type="button" role="menuitem">
+                <span class="mock-menu-row-label">GPT-5.5</span>
+                <svg class="mock-menu-row-next" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m9 6 6 6-6 6"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row mock-menu-action" type="button" role="menuitem">
+                <span class="mock-menu-row-label">速度</span>
+                <svg class="mock-menu-row-next" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m9 6 6 6-6 6"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="mock-menu mock-menu-launch" id="launch-menu" role="menu" aria-labelledby="launch-trigger" data-placement="bottom" data-align="left" hidden>
+              <p class="mock-menu-title">启动模式</p>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="true" data-label="本地模式">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="5" width="16" height="11" rx="2"/>
+                  <path d="M8 19h8M12 16v3"/>
+                </svg>
+                <span class="mock-menu-row-label">在本地处理</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitemradio" aria-checked="false" data-label="新工作树">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 7h10v10"/>
+                  <path d="M17 7 6 18"/>
+                  <path d="M7 18h11"/>
+                </svg>
+                <span class="mock-menu-row-label">新工作树</span>
+                <svg class="mock-menu-row-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4 10-10"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitem">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M8 12h3l2-3"/>
+                  <path d="M12 7v2"/>
+                  <path d="M7 12H5"/>
+                </svg>
+                <span class="mock-menu-row-label">关联 Codex web</span>
+                <svg class="mock-menu-external" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 4h6v6"/>
+                  <path d="M10 14 20 4"/>
+                  <path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/>
+                </svg>
+              </button>
+              <button class="mock-menu-row" type="button" role="menuitem" disabled>
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m3 3 18 18"/>
+                  <path d="M17.5 17H8a4 4 0 0 1-.7-7.94A5.5 5.5 0 0 1 16.5 6.5 4.5 4.5 0 0 1 21 11"/>
+                  <path d="M10.6 5.2A5.5 5.5 0 0 1 16.5 6.5"/>
+                </svg>
+                <span class="mock-menu-row-label">发送至云端</span>
+                <span></span>
+              </button>
+              <div class="mock-menu-separator" role="separator"></div>
+              <button class="mock-menu-row" type="button" role="menuitem">
+                <svg class="mock-menu-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 14a8 8 0 1 1 16 0"/>
+                  <path d="M12 14 17 9"/>
+                  <path d="M8 14h.01M16 14h.01"/>
+                </svg>
+                <span class="mock-menu-row-label">剩余额度</span>
+                <svg class="mock-menu-row-next" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m9 6 6 6-6 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+      </div>
+    </article>
+    <div class="bottom-slogan" aria-hidden="true">
+      <img src="assets/slogan.svg?v=a3af937f41fe" alt="">
+    </div>
+    <audio data-music-audio preload="metadata" autoplay></audio>
+  </main>
+    <script src="assets/attendees.js?v=e8f2abbe52bd"></script>
+    <script src="assets/blessings.js?v=a3af937f41fe"></script>
+    <script>
+    (() => {
+      const tracks = [
+        {
+          title: "小河淌水",
+          src: "media/music/xiaohe-tangshui.mp3",
+        },
+        {
+          title: "在那遥远的地方",
+          src: "media/music/zai-na-yaoyuan-de-difang.mp3",
+        },
+      ];
+      const audio = document.querySelector("[data-music-audio]");
+      const toggle = document.querySelector("[data-music-toggle]");
+      const trackLabel = document.querySelector("[data-music-track]");
+
+      if (!audio || !toggle || !trackLabel) {
+        return;
+      }
+
+      let currentTrackIndex = 0;
+      let wantsPlayback = false;
+      let removePlaybackUnlock = () => {};
+
+      function getCurrentTrack() {
+        return tracks[currentTrackIndex];
+      }
+
+      function updateToggle(isPlaying) {
+        const track = getCurrentTrack();
+        toggle.classList.toggle("is-playing", isPlaying);
+        toggle.setAttribute("aria-pressed", String(isPlaying));
+        toggle.setAttribute("aria-label", `${isPlaying ? "暂停" : "播放"}背景音乐：${track.title}`);
+        trackLabel.textContent = track.title;
+      }
+
+      function setTrack(index, shouldLoad = true) {
+        currentTrackIndex = (index + tracks.length) % tracks.length;
+
+        if (shouldLoad) {
+          audio.src = getCurrentTrack().src;
+          audio.load();
+        }
+
+        updateToggle(!audio.paused);
+      }
+
+      function ensureSource() {
+        if (!audio.getAttribute("src")) {
+          audio.src = getCurrentTrack().src;
+          audio.load();
+        }
+      }
+
+      function clearPlaybackUnlock() {
+        removePlaybackUnlock();
+        removePlaybackUnlock = () => {};
+      }
+
+      function schedulePlaybackUnlock() {
+        clearPlaybackUnlock();
+
+        const retryPlayback = () => {
+          clearPlaybackUnlock();
+          playMusic();
+        };
+
+        document.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
+        document.addEventListener("touchstart", retryPlayback, { once: true, passive: true });
+        document.addEventListener("keydown", retryPlayback, { once: true });
+
+        removePlaybackUnlock = () => {
+          document.removeEventListener("pointerdown", retryPlayback);
+          document.removeEventListener("touchstart", retryPlayback);
+          document.removeEventListener("keydown", retryPlayback);
+        };
+      }
+
+      async function playMusic({ retryOnInteraction = false } = {}) {
+        wantsPlayback = true;
+        audio.volume = 0.72;
+        ensureSource();
+
+        try {
+          await audio.play();
+          clearPlaybackUnlock();
+          updateToggle(true);
+        } catch {
+          if (retryOnInteraction) {
+            schedulePlaybackUnlock();
+          } else {
+            wantsPlayback = false;
+          }
+          audio.pause();
+          updateToggle(false);
+        }
+      }
+
+      function pauseMusic() {
+        wantsPlayback = false;
+        clearPlaybackUnlock();
+        audio.pause();
+        updateToggle(false);
+      }
+
+      toggle.addEventListener("click", () => {
+        if (audio.paused) {
+          playMusic();
+        } else {
+          pauseMusic();
+        }
+      });
+
+      audio.addEventListener("play", () => updateToggle(true));
+      audio.addEventListener("pause", () => {
+        if (!audio.ended) {
+          updateToggle(false);
+        }
+      });
+      audio.addEventListener("ended", () => {
+        setTrack(currentTrackIndex + 1);
+
+        if (wantsPlayback) {
+          playMusic();
+        }
+      });
+      audio.addEventListener("error", pauseMusic);
+
+      setTrack(0, false);
+      updateToggle(false);
+      playMusic({ retryOnInteraction: true });
+    })();
+
+    (() => {
+      const greetingText = document.querySelector("[data-greeting-text]");
+      const subtitle = greetingText?.closest(".forum-subtitle");
+
+      if (!greetingText || !subtitle) {
+        return;
+      }
+
+      const rawNames = Array.isArray(window.forumAttendeeNames) ? window.forumAttendeeNames : [];
+      const attendees = rawNames
+        .map((name, index) => ({ name: normalizeAttendeeName(name), index }))
+        .filter((attendee, index, queue) => (
+          attendee.name
+          && queue.findIndex((candidate) => candidate.name === attendee.name) === index
+        ));
+      const displayQueue = attendees.length ? attendees.slice() : [{ name: "林知远", index: 0 }];
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const fallbackBlessings = [
+        "保持勇敢，让漂亮转折自然发生",
+        "愿你今天在专注里遇见灵感",
+        "灵感频道连接成功"
+      ];
+      const rawBlessings = Array.isArray(window.forumBlessingCopies) ? window.forumBlessingCopies : [];
+      const blessingCopies = Array.from(new Set(rawBlessings.map(normalizeBlessing).filter(Boolean)));
+      const displayBlessings = blessingCopies.length ? blessingCopies : fallbackBlessings;
+      const attendeeBlessings = assignBlessings(displayQueue, displayBlessings);
+
+      function getRandomIndex(max) {
+        if (window.crypto?.getRandomValues) {
+          const value = new Uint32Array(1);
+          window.crypto.getRandomValues(value);
+          return value[0] % max;
+        }
+
+        return Math.floor(Math.random() * max);
+      }
+
+      function shuffle(queue) {
+        for (let index = queue.length - 1; index > 0; index -= 1) {
+          const swapIndex = getRandomIndex(index + 1);
+          [queue[index], queue[swapIndex]] = [queue[swapIndex], queue[index]];
+        }
+      }
+
+      function normalizeAttendeeName(name) {
+        return String(name || "").replace(/\s+/g, " ").trim();
+      }
+
+      function normalizeBlessing(copy) {
+        const trimmed = String(copy || "")
+          .replace(/^\s*(?:[-*]\s*)?\d+[.、]\s*/, "")
+          .replace(/[。！？.!?]\s*$/, "")
+          .trim();
+
+        if (!trimmed) {
+          return "";
+        }
+
+        return trimmed;
+      }
+
+      function buildBlessingPool(count, baseCopies) {
+        if (!baseCopies.length) {
+          return [];
+        }
+
+        const pool = [];
+
+        while (pool.length < count) {
+          pool.push(...baseCopies);
+        }
+
+        return pool.slice(0, count);
+      }
+
+      function assignBlessings(queue, baseCopies) {
+        const pool = buildBlessingPool(queue.length, baseCopies);
+        shuffle(pool);
+
+        return new Map(queue.map((attendee, index) => [
+          attendee.index,
+          pool[index] || fallbackBlessings[index % fallbackBlessings.length]
+        ]));
+      }
+
+      function buildGreeting(attendee) {
+        return {
+          text: `${attendee.name}老师丨${attendeeBlessings.get(attendee.index) || fallbackBlessings[0]}`,
+        };
+      }
+
+      function shuffleDisplayQueue(previousAttendee) {
+        shuffle(displayQueue);
+
+        if (displayQueue.length <= 1 || !previousAttendee || displayQueue[0]?.name !== previousAttendee.name) {
+          return;
+        }
+
+        const swapIndex = displayQueue.findIndex((attendee, index) => (
+          index > 0 && attendee.name !== previousAttendee.name
+        ));
+
+        if (swapIndex > 0) {
+          [displayQueue[0], displayQueue[swapIndex]] = [displayQueue[swapIndex], displayQueue[0]];
+        }
+      }
+
+      function fitGreetingLine() {
+        subtitle.style.fontSize = "";
+
+        const availableWidth = subtitle.clientWidth;
+        const requiredWidth = subtitle.scrollWidth;
+
+        if (!availableWidth || requiredWidth <= availableWidth) {
+          return;
+        }
+
+        const currentSize = Number.parseFloat(window.getComputedStyle(subtitle).fontSize);
+        const fittedSize = Math.max(9, currentSize * (availableWidth / requiredWidth));
+        subtitle.style.fontSize = `${fittedSize}px`;
+      }
+
+      let greetingFitFrame = 0;
+
+      function scheduleFitGreetingLine() {
+        if (greetingFitFrame) {
+          return;
+        }
+
+        greetingFitFrame = window.requestAnimationFrame(() => {
+          greetingFitFrame = 0;
+          fitGreetingLine();
+        });
+      }
+
+      function fitGreetingLineForText(text) {
+        const currentText = greetingText.textContent;
+        const currentVisibility = greetingText.style.visibility;
+
+        greetingText.style.visibility = "hidden";
+        greetingText.textContent = text;
+        fitGreetingLine();
+
+        greetingText.textContent = currentText;
+        greetingText.style.visibility = currentVisibility;
+      }
+
+      function wait(duration) {
+        return new Promise((resolve) => window.setTimeout(resolve, duration));
+      }
+
+      async function typeLine(text) {
+        fitGreetingLineForText(text);
+        greetingText.textContent = "";
+
+        if (prefersReducedMotion) {
+          greetingText.textContent = text;
+          return;
+        }
+
+        let typedText = "";
+        for (const char of Array.from(text)) {
+          typedText += char;
+          greetingText.textContent = typedText;
+          await wait(26);
+        }
+      }
+
+      let queueIndex = 0;
+      let lastDisplayedAttendee = null;
+      let greetingLoopActive = true;
+      shuffleDisplayQueue();
+
+      async function runGreetingLoop() {
+        while (greetingLoopActive) {
+          if (queueIndex >= displayQueue.length) {
+            shuffleDisplayQueue(lastDisplayedAttendee);
+            queueIndex = 0;
+          }
+
+          const greeting = buildGreeting(displayQueue[queueIndex]);
+          lastDisplayedAttendee = displayQueue[queueIndex];
+          queueIndex += 1;
+
+          await typeLine(greeting.text);
+          await wait(prefersReducedMotion ? 3200 : 2300);
+        }
+      }
+
+      window.addEventListener("pagehide", () => {
+        greetingLoopActive = false;
+      }, { once: true });
+      window.addEventListener("resize", scheduleFitGreetingLine);
+      runGreetingLoop();
+    })();
+
+    (() => {
+      const consoleEl = document.querySelector(".mock-console");
+      const triggers = Array.from(document.querySelectorAll("[data-menu-trigger]"));
+      const menus = Array.from(document.querySelectorAll(".mock-menu"));
+
+      if (!consoleEl || triggers.length === 0 || menus.length === 0) {
+        return;
+      }
+
+      const triggerForMenu = (menu) => triggers.find((trigger) => trigger.dataset.menuTrigger === menu.id);
+
+      function setHostOpen(trigger, isOpen) {
+        const host = trigger.closest(".mock-select-host");
+        if (!host) {
+          return;
+        }
+
+        if (isOpen) {
+          host.dataset.open = "true";
+        } else {
+          delete host.dataset.open;
+        }
+      }
+
+      function placeMenu(trigger, menu) {
+        const gap = Number(menu.dataset.gap || 10);
+        const consoleRect = consoleEl.getBoundingClientRect();
+        const triggerRect = trigger.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        const scaleX = consoleEl.offsetWidth ? consoleRect.width / consoleEl.offsetWidth : 1;
+        const scaleY = consoleEl.offsetHeight ? consoleRect.height / consoleEl.offsetHeight : 1;
+        const localScaleX = scaleX || 1;
+        const localScaleY = scaleY || 1;
+        const menuWidth = menuRect.width / localScaleX;
+        const menuHeight = menuRect.height / localScaleY;
+        const align = menu.dataset.align || "center";
+        const placement = menu.dataset.placement || "top";
+        let left = (triggerRect.left - consoleRect.left) / localScaleX;
+
+        if (align === "right") {
+          left = (triggerRect.right - consoleRect.left) / localScaleX - menuWidth;
+        } else if (align === "center") {
+          left = (triggerRect.left - consoleRect.left) / localScaleX + (triggerRect.width / localScaleX - menuWidth) / 2;
+        }
+
+        const minLeft = (-consoleRect.left + 8) / localScaleX;
+        const maxLeft = (window.innerWidth - consoleRect.left - 8) / localScaleX - menuWidth;
+        left = Math.max(minLeft, Math.min(left, maxLeft));
+
+        let top = placement === "bottom"
+          ? (triggerRect.bottom - consoleRect.top) / localScaleY + gap
+          : (triggerRect.top - consoleRect.top) / localScaleY - menuHeight - gap;
+
+        const minTop = (-consoleRect.top + 8) / localScaleY;
+        const maxTop = (window.innerHeight - consoleRect.top - 8) / localScaleY - menuHeight;
+        top = Math.max(minTop, Math.min(top, maxTop));
+
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        menu.style.setProperty("--menu-origin", "top left");
+      }
+
+      function closeMenu(menu) {
+        const trigger = triggerForMenu(menu);
+        menu.classList.remove("is-open");
+        window.clearTimeout(Number(menu.dataset.closeTimer || 0));
+        menu.dataset.closeTimer = String(window.setTimeout(() => {
+          if (!menu.classList.contains("is-open")) {
+            menu.hidden = true;
+          }
+        }, 160));
+
+        if (trigger) {
+          trigger.setAttribute("aria-expanded", "false");
+          setHostOpen(trigger, false);
+        }
+      }
+
+      function closeAll(exceptMenu) {
+        menus.forEach((menu) => {
+          if (menu !== exceptMenu && !menu.hidden) {
+            closeMenu(menu);
+          }
+        });
+      }
+
+      function openMenu(trigger, menu) {
+        closeAll(menu);
+        window.clearTimeout(Number(menu.dataset.closeTimer || 0));
+        menu.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        setHostOpen(trigger, true);
+        requestAnimationFrame(() => {
+          placeMenu(trigger, menu);
+          menu.classList.add("is-open");
+        });
+      }
+
+      let menuPlacementFrame = 0;
+
+      function placeOpenMenus() {
+        menuPlacementFrame = 0;
+
+        menus.forEach((menu) => {
+          if (menu.classList.contains("is-open")) {
+            const trigger = triggerForMenu(menu);
+            if (trigger) {
+              placeMenu(trigger, menu);
+            }
+          }
+        });
+      }
+
+      function scheduleMenuPlacement() {
+        if (menuPlacementFrame) {
+          return;
+        }
+
+        menuPlacementFrame = window.requestAnimationFrame(placeOpenMenus);
+      }
+
+      function toggleMenu(trigger) {
+        const menu = document.getElementById(trigger.dataset.menuTrigger);
+        if (!menu) {
+          return;
+        }
+
+        if (menu.classList.contains("is-open")) {
+          closeMenu(menu);
+        } else {
+          openMenu(trigger, menu);
+        }
+      }
+
+      function updateSelectedRow(menu, row) {
+        const groupRows = Array.from(menu.querySelectorAll('[role="menuitemradio"]'));
+        if (row.getAttribute("role") === "menuitemradio") {
+          groupRows.forEach((item) => item.setAttribute("aria-checked", String(item === row)));
+        }
+
+        const label = row.dataset.label;
+        const trigger = triggerForMenu(menu);
+        const triggerLabel = trigger?.querySelector("[data-trigger-label]");
+
+        if (label && triggerLabel) {
+          triggerLabel.textContent = label;
+        }
+
+        if (trigger && menu.id === "permission-menu") {
+          trigger.classList.toggle("mock-control-active", label === "完全访问权限");
+        }
+      }
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("click", () => toggleMenu(trigger));
+      });
+
+      menus.forEach((menu) => {
+        menu.addEventListener("click", (event) => {
+          const row = event.target.closest(".mock-menu-row");
+
+          if (!row || row.disabled) {
+            return;
+          }
+
+          updateSelectedRow(menu, row);
+
+          if (row.getAttribute("role") !== "menuitem" || row.dataset.label) {
+            closeMenu(menu);
+          }
+        });
+
+        menu.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeMenu(menu);
+            triggerForMenu(menu)?.focus();
+          }
+        });
+      });
+
+      document.addEventListener("click", (event) => {
+        if (event.target.closest(".mock-menu, [data-menu-trigger]")) {
+          return;
+        }
+
+        closeAll();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeAll();
+        }
+      });
+
+      window.addEventListener("resize", scheduleMenuPlacement);
+    })();
+  </script>
+</body>
+</html>
